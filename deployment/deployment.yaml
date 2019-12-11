@@ -1,0 +1,27 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: nginx-deployment
+  labels:
+    app: nginx
+spec:
+  replicas: 3
+  selector:
+    matchLabels:
+      app: nginx
+    strategy:
+      type: RollingUpdate
+      rollingUpdate:
+        maxSurge: 1          # 在一次“滚动”过程中，除了DESIRED数量之外，Deployment控制器还可以创建多少个新Pod；
+        maxUnavailable: 1    # 在一次“滚动”过程中，Deployment控制器可以删除多少个旧Pod；
+    revisionHistoryLimit: 10
+  template:
+    metadata:
+      labels:
+        app: nginx
+    spec:
+      containers:
+      - name: nginx
+        image: nginx:1.7.9
+        ports:
+        - containerPort: 80

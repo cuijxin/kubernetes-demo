@@ -1,0 +1,14 @@
+# 在Kubernetes项目中，当一个节点的网络插件尚未安装时，这个节点就会被自动加上名为
+# node.kubernetes.io/network-unavailable 的“污点“
+# 而通过spec.tolerations（容忍）属性，调度器在调度这个Pod的时候，就会忽略当前节点上的
+# “污点”，从而成功地将网络插件的Agent组件调度到这台机器上启动起来。
+...
+template:
+    metadata:
+      labels:
+        name: network-plugin-agent
+    spec:
+      tolerations:
+      - key: node.kubernetes.io/network-unavailable
+        operator: Exists
+        effect: NoSchedule
