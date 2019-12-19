@@ -1,0 +1,38 @@
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: freshci-job-claim
+spec:
+  accessModes:
+  - ReadWriteOnce
+  resources:
+    requests:
+      storage: 8Gi
+  storageClassName: standard
+---
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: freshci-job
+spec:
+  template:
+    spec:
+      containers:
+      - name: freshci-job
+        image: hooklife/freshci-git
+        command: ["/bin/sh", "-c", "echo $FRESHCI_CMD | base64 -d | /bin/sh -e"]
+        env:
+          - name: ACCESS_TOKEN
+            value: "501afee1fcd04cba71579105134ed4c8e96ffb04"
+          - name: REPO
+            value: "douxiyou/appBackend"
+          - name: FRESHCI_CMD
+            value: "CiAgICAgICAgICAgICAgICAgICAgZ2l0IGluaXQKICAgICAgICAgICAgICAgICAgICBnaXQgcmVtb3RlIGFkZCBvcmlnaW4gaHR0cHM6Ly81MDFhZmVlMWZjZDA0Y2JhNzE1NzkxMDUxMzRlZDRjOGU5NmZmYjA0Ongtb2F1dGgtYmFzaWNAZ2l0aHViLmNvbS9kb3V4aXlvdS9hcHBCYWNrZW5kLmdpdAogICAgICAgICAgICAgICAgICAgIGdpdCBmZXRjaCBvcmlnaW4KICAgICAgICAgICAgICAgICAgICBnaXQgY2hlY2tvdXQgOThiM2QzZjcxZDBhZDg4NmMzYzRiMzYxMDA3NmEwY2Q2NWFjNDczYwogICAgICAgICAgICAgICAgICAgIHdnZXQgLVAgLi8gaHR0cDovL3NvZnQudnBzZXIubmV0L2xubXAvbG5tcDEuNi50YXIuZ3oKICAgICAgICAgICAg"
+        volumeMounts:
+        - name: freshci-job-storage
+          mountPath: /freshCI"
+      restartPolicy: Never
+      volumes:
+      - name: freshci-job-storage
+        persistentVolumeClaim:
+          claimName: freshci-job-claim
